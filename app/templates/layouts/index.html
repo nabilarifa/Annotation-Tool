@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container" style="margin-top:30px">
+    <div class="container text-center my-3">
+        <h1 class="text-center">Text Annotation Tool</h1>
+        <br>
+
+        <form action="{{ url_for('annotate') }}" method="post" id="passcode">
+            <input name="passcode_text" type="password" placeholder="Enter password" class="text-dark">
+            <input id="submit_passcode" type="submit">
+        </form>
+    </div>
+</div>
+
+
+<br>
+
+<div class="container">
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Progress Report</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Completed</td>
+                <td>{{completed}}</td>
+            </tr>
+            <tr>
+                <td>Remaining</td>
+                <td>{{remaining}}</td>
+
+            </tr>
+            <tr>
+                <td>Total</td>
+                <td>{{total}}</td>
+
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<br>
+<br>
+
+<div class="jumbotron text-center" style="margin-bottom:0">
+    <p> </p>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

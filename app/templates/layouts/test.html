@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %} {% endblock %}
+
+{% block content %}
+<br>
+<div class="container mt-3">
+  <div class=" float-right">
+    <!-- Button to Open the Modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+      Help
+    </button>
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h1 class="modal-title">Guideline</h1>
+            <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="modal-body">
+            <h4>Annotation Steps</h4>
+            <ul>
+              <li>Read the sentence</li>
+              <li>Select the closest sentiment you think</li>
+              <li>Rate it on how much abusive you think the sentence is</li>
+              <li>If abusive, select who might it be targetted to</li>
+            </ul>
+            <h6>Language identification(LID)</h6>
+            <p>Select the accurate language tag for the token. Here,</p>
+            <ul>
+              <li>BN= Bangla</li>
+              <li>EN= English</li>
+              <li>FW= Foreign word</li>
+              <li>Ambiguous= Select this tag if it's not clear</li>
+              <li>NE= Name Entity, select if the tag is name or entity</li>
+              <li>Other= select if the tag is number, emoji or other punctuation</li>
+              <li><b>Example</b>: Rafi(NE) tui(BN) block(EN) khabi(BN) 😤(other)</li>
+            </ul>
+            <h6>Name Entity Recognition(NER)</h6>
+            <p>It uses BIO notation, which differentiates the <b>beginning</b> (B) and the <b>inside</b>(I) of entities.
+              O is used
+              for <b>non-entity</b> tokens.</p>
+            <ul>
+              <li>O is outside of named entities </li>
+              <li>I-XXX tag is used for words inside a
+                named entity of type XXX </li>
+              <li>Whenever two entities of
+                type XXX are immediately next to each other, the
+                <b>first</b> word of the second entity will be tagged B-XXX
+                in order to show that it starts another entity</li>
+              <li>It contains eight types of entities, <b>persons</b> (PER),
+                <b>organizations</b> (ORG), <b>locations</b> (LOC), <b>group</b> (GRP), <b>product</b> (PROD), <b>title</b> (TTL), <b>event</b> (EVNT), <b>time</b> (TIME) and <b>miscellaneous</b> names (MISC).</li>
+              <li><b>Example, IOB2</b>:Alex (B-PER)
+                is (O)
+                going (O)
+                to (O)
+                Los (B-LOC)
+                Angeles (I-LOC)
+                in (O)
+                California (B-LOC)</li>
+              <li><b>Example, IOB</b>:Alex (I-PER)
+                is (O)
+                going (O)
+                to (O)
+                Los (I-LOC)
+                Angeles (I-LOC)
+                in (O)
+                California (I-LOC)</li>
+            </ul>
+            <h6>Name Entity Labels</h6>
+            <ul>
+              <li><b>Persons : </b>This entity type includes proper names and nicknames that can identify a person uniquely. We ignore cases where a person is referred by nouns with adjectives that are not necessarily a nickname. Single artists and famous people are treated as person.</li>
+              <li><b>Organizations : </b>This entity type includes names of companies, institutions and corporations, i.e. every entity that has employees and takes actions as a whole. If the NE can potentially be any other type, the context should be sufficient to support whether it is organization or not (e.g., Facebook as organization vs. Facebook as the website application).</li>
+              <li><b>Locations : </b>This NE refers to physical places that people can visit. It includes cities, countries, addresses, facilities, touristic places, etc. This entity type is not to be confused with organization. For instance, when people use organization names to refer to places that can be visited (e.g., restaurants), those entities must be tagged as location.</li>
+              <li><b>Group : </b>This NE includes sports teams, music bands, duets, etc. Group and organization are not to be confused. For example, the Houston Astros as a team (i.e., group) is different from the Houston Astros institution.</li>
+              <li><b>Product : </b>This NE refers to articles that have been manufactured or refined for sale, like devices, medicine, food produced by a company, any well-defined service, website accounts, etc.</li>
+              <li><b>Title : </b>This type includes titles of movies,books, TV shows, songs, etc. Very often, titles can be sentences (e.g., the movie We’re the Millers). Titles usually refer to media and must not be confused with the product type.</li>
+              <li><b>Event : </b>This type refers to situations or scenarios that gather people for a specific purpose such as concerts, competitions, conferences, award events, etc. Events do not consider holidays.</li>
+              <li><b>Time : </b>This NE includes months, days of the week, seasons, holidays and dates that happen periodically, which are not events (e.g.,Christmas). It excludes hours, minutes, and seconds. ‘Yesterday’, ‘tomorrow’, ‘week’ and ‘year’ are not tagged as time.</li>
+              <li><b>Miscellaneous : </b>This type includes any other named entity that does not fit in the previous categories. This may include nationalities, languages, music genres, etc.</li>
+            </ul>
+            <h6>Abusive Target</h6>
+            <p>Select N/A if the the sentence is not abusive</p>
+
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<br>
+<br>
+
+<form action="{{ url_for('next_page') }}" method="post" id="results">
+  {% for sen in eval_data %}
+  <div class="container mt-3">
+
+    <h2> Sentence {{sen['sent_id']}}</h2>
+    <div class="container p-3 my-3 border">
+      <p>{{sen['sentences']}}</p>
+
+    </div>
+  </div>
+  <div class="container mt-3">
+    <h2>Sentiment Analysis</h2>
+    <div class="container mt-3">
+
+      <input type="text" name="annotator_id" id="annotator_id" value="{{annotator_id}}" hidden>
+      <input type="text" name="sentence_id" id="sentence_id" value="{{sen['sent_id']}}" hidden>
+
+      <input type="radio" name="sentiment_analysis" value="very_positive"> Very Positive
+      <input type="radio" name="sentiment_analysis" value="slightly_positive"> Slightly Positive
+      <input type="radio" name="sentiment_analysis" value="neutral"> Neutral
+      <input type="radio" name="sentiment_analysis" value="slightly_negative"> Slightly Negative
+      <input type="radio" name="sentiment_analysis" value="very_negative"> Very Negative <br>
+
+    </div>
+  </div>
+
+  <br>
+
+  <div class="container mt-3">
+    <h2>Humor Detection</h2>
+    <div class="container mt-3">
+
+      <input type="text" name="annotator_id" id="annotator_id" value="{{annotator_id}}" hidden>
+      <input type="text" name="sentence_id" id="sentence_id" value="{{sen['sent_id']}}" hidden>
+      <input type="radio" name="humor_detection" value="humorous"> Is Humorous
+      <input type="radio" name="humor_detection" value="not_humor"> Not Humor <br>
+
+    </div>
+  </div>
+  <br>
+
+  <div class="container mt-3">
+    <h2>Abusive Sentence</h2>
+    <div class="container mt-3">
+      <input type="radio" name="abusive_sentence" value="very"> Very
+      <input type="radio" name="abusive_sentence" value="slightly"> Slightly
+      <input type="radio" name="abusive_sentence" value="not_sure"> Not Sure
+      <input type="radio" name="abusive_sentence" value="not_at_all"> Not at all <br>
+    </div>
+  </div>
+  <br>
+
+  <div class="container mt-3">
+    <h2>Abusive Target</h2>
+    <div class="container mt-3">
+      <input type="radio" name="abusive_target" value="n/a"> N/A
+      <input type="radio" name="abusive_target" value="person"> Person
+      <input type="radio" name="abusive_target" value="religion"> Religion
+      <input type="radio" name="abusive_target" value="gender"> Gender
+      <input type="radio" name="abusive_target" value="race"> Race
+      <input type="radio" name="abusive_target" value="entity"> Entity
+      <input type="radio" name="abusive_target" value="miscellaneous"> Miscellaneous <br>
+    </div>
+  </div>
+
+
+
+  <br>
+
+
+
+  <div class="container mt-3">
+
+    <h2>Annotation Table</h2>
+    <br>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tokens</th>
+          <th>LID</th>
+          <th>NER</th>
+        </tr>
+      </thead>
+      {% for t in sen['tokens'] %}
+      <tbody>
+        <tr>
+          <td> {{loop.index}} </td>
+          <td> {{t}} </td>
+          <td>
+            <select name="LID" id="{{sen['sent_id']}}#lid">
+              <!-- <option selected disabled>--Select LID--</option> -->
+              <option>BN</option>
+              <option>EN</option>
+              <option>FW </option>
+              <option>Ambiguous </option>
+              <option>NE</option>
+              <option>Other </option>
+            </select>
+            <br><br>
+          </td>
+          <td>
+            
+            <select name="NER" id="{{sen['sent_id']}}#ner">
+              <option> O </option>
+              <option>B-PER</option>
+              <option>I-PER</option>
+              <option>B- LOC </option>
+              <option>I- LOC </option>
+              <option>B- ORG </option>
+              <option>I- ORG </option>
+              <option>B- GRP</option>
+              <option>I- GRP</option>
+              <option>B- PROD </option>
+              <option>I- PROD </option>
+              <option>B- TTL </option>
+              <option>I- TTL </option>
+              <option>B- EVNT </option>
+              <option>I- EVNT </option>
+              <option>B- TIME </option>
+              <option>I- TIME </option>
+              <option>B- MISC </option>
+              <option>I- MISC </option>
+            
+            </select>
+          </td>
+        </tr>
+      </tbody>
+      {% endfor %}
+    </table>
+  </div>
+
+  <br>
+
+  <div class="container">
+    <div style="text-align: right">
+      <button type="submit" class="btn btn-primary">Next</button>
+
+      <a href="{{ url_for('finish', sentence_id=sen['sent_id']) }}">
+        <button type="button" class="btn btn-success">Finish</button>
+      </a>
+    </div>
+    <br />
+    <br />
+  </div>
+  {% endfor %}
+
+
+
+
+
+  <!-- <input class="btn-dark" type="submit"> -->
+</form>
+<br>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/annotate.js') }}"></script>
+<script src="{{ url_for('static', filename='js/hover.js') }}"></script>
+<script>
+  var selectedOption = $("input:radio[name=sentiment_analysis]:checked").val()
+</script>
+<script>
+  $('document').ready(function () {
+    apply_hover_effect();
+  });
+</script>
+{% endblock %}Is Completed

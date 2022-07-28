@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %} {% endblock %}
+
+{% block content %}
+<br>
+<div class="container mt-3">
+  <div class=" float-right">
+    <!-- Button to Open the Modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+      Help
+    </button>
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h1 class="modal-title">Guideline</h1>
+            <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="modal-body">
+            <h4>Annotation Steps</h4>
+            <ul>
+              <li>Read the sentence</li>
+              <li>Select the closest sentiment you think</li>
+              <li>Rate it on how much abusive you think the sentence is</li>
+              <li>If abusive, select who might it be targetted to</li>
+            </ul>
+            <h6>Language identification(LID)</h6>
+            <p>Select the accurate language tag for the token. Here,</p>
+            <ul>
+              <li>BN= Bangla</li>
+              <li>EN= English</li>
+              <li>FW= Foreign word</li>
+              <li>Ambiguous= Select this tag if it's not clear</li>
+              <li>NE= Name Entity, select if the tag is name or entity</li>
+              <li>Other= select if the tag is number, emoji or other punctuation</li>
+              <li><b>Example</b>: Rafi(NE) tui(BN) block(EN) khabi(BN) 😤(other)</li>
+            </ul>
+            <h6>Name Entity Recognition(NER)</h6>
+            <p>It uses BIO notation, which differentiates the <b>beginning</b> (B) and the <b>inside</b>(I) of entities.
+              O is used
+              for <b>non-entity</b> tokens.</p>
+            <ul>
+              <li>O is outside of named entities </li>
+              <li>I-XXX tag is used for words inside a
+                named entity of type XXX </li>
+              <li>Whenever two entities of
+                type XXX are immediately next to each other, the
+                <b>first</b> word of the second entity will be tagged B-XXX
+                in order to show that it starts another entity</li>
+              <li>It contains four types of entities, <b>persons</b> (PER),
+                <b>organizations</b> (ORG), <b>locations</b> (LOC) and <b>miscellaneous</b> names (MISC).</li>
+              <li><b>Example, IOB2</b>:Alex (B-PER)
+                is (O)
+                going (O)
+                to (O)
+                Los (B-LOC)
+                Angeles (I-LOC)
+                in (O)
+                California (B-LOC)</li>
+              <li><b>Example, IOB</b>:Alex (I-PER)
+                is (O)
+                going (O)
+                to (O)
+                Los (I-LOC)
+                Angeles (I-LOC)
+                in (O)
+                California (I-LOC)</li>
+            </ul>
+            <h6>Abusive Target</h6>
+            <p>Select N/A if the the sentence is not abusive</p>
+
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<br>
+<br>
+
+<form action="{{ url_for('next_page') }}" method="post" id="results">
+  {% for sen in eval_data %}
+  <div class="container mt-3">
+
+    <h2> Sentence {{sen['sent_id']}}</h2>
+    <div class="container p-3 my-3 border">
+      <p>{{sen['sentences']}}</p>
+
+    </div>
+  </div>
+  <div class="container mt-3">
+    <h2>Sentiment Analysis</h2>
+    <div class="container mt-3">
+
+      <input type="text" name="annotator_id" id="annotator_id" value="{{annotator_id}}" hidden>
+      <input type="text" name="sentence_id" id="sentence_id" value="{{sen['sent_id']}}" hidden>
+
+      <input type="radio" name="sentiment_analysis" value="very_positive"> Very Positive
+      <input type="radio" name="sentiment_analysis" value="slightly_positive"> Slightly Positive
+      <input type="radio" name="sentiment_analysis" value="neutral"> Neutral
+      <input type="radio" name="sentiment_analysis" value="slightly_negative"> Slightly Negative
+      <input type="radio" name="sentiment_analysis" value="very_negative"> Very Negative <br>
+
+    </div>
+  </div>
+
+  <br>
+
+  <div class="container mt-3">
+    <h2>Humor Detection</h2>
+    <div class="container mt-3">
+
+      <input type="text" name="annotator_id" id="annotator_id" value="{{annotator_id}}" hidden>
+      <input type="text" name="sentence_id" id="sentence_id" value="{{sen['sent_id']}}" hidden>
+      <input type="radio" name="humor_detection" value="humorous"> Is Humorous
+      <input type="radio" name="humor_detection" value="not_humor"> Not Humor <br>
+
+    </div>
+  </div>
+  <br>
+
+  <div class="container mt-3">
+    <h2>Abusive Sentence</h2>
+    <div class="container mt-3">
+      <input type="radio" name="abusive_sentence" value="very"> Very
+      <input type="radio" name="abusive_sentence" value="slightly"> Slightly
+      <input type="radio" name="abusive_sentence" value="not_sure"> Not Sure
+      <input type="radio" name="abusive_sentence" value="not_at_all"> Not at all <br>
+    </div>
+  </div>
+  <br>
+
+  <div class="container mt-3">
+    <h2>Abusive Target</h2>
+    <div class="container mt-3">
+      <input type="radio" name="abusive_target" value="n/a"> N/A
+      <input type="radio" name="abusive_target" value="person"> Person
+      <input type="radio" name="abusive_target" value="religion"> Religion
+      <input type="radio" name="abusive_target" value="gender"> Gender
+      <input type="radio" name="abusive_target" value="race"> Race
+      <input type="radio" name="abusive_target" value="entity"> Entity
+      <input type="radio" name="abusive_target" value="miscellaneous"> Miscellaneous <br>
+    </div>
+  </div>
+
+
+
+  <br>
+
+
+
+  <div class="container mt-3">
+
+    <h2>Annotation Table</h2>
+    <br>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tokens</th>
+          <th>LID</th>
+          <th>NER</th>
+        </tr>
+      </thead>
+      {% for t in sen['tokens'] %}
+      <tbody>
+        <tr>
+          <td> {{loop.index}} </td>
+          <td> {{t}} </td>
+          <td>
+            <select name="LID" id="{{sen['sent_id']}}#lid">
+              <!-- <option selected disabled>--Select LID--</option> -->
+              <option>BN</option>
+              <option>EN</option>
+              <option>FW </option>
+              <option>Ambiguous </option>
+              <option>NE</option>
+              <option>Other </option>
+            </select>
+            <br><br>
+          </td>
+          <td>
+            
+            <select name="NER" id="{{sen['sent_id']}}#ner">
+              <option> O </option>
+              <option>B-PER</option>
+              <option>I-PER</option>
+              <option>B- LOC </option>
+              <option>I- LOC </option>
+              <option>B- ORG </option>
+              <option>I- ORG </option>
+              <option>B- GRP</option>
+              <option>I- GRP</option>
+              <option>B- PROD </option>
+              <option>I- PROD </option>
+              <option>B- TTL </option>
+              <option>I- TTL </option>
+              <option>B- EVNT </option>
+              <option>I- EVNT </option>
+              <option>B- TIME </option>
+              <option>I- TIME </option>
+              <option>B- MISC </option>
+              <option>I- MISC </option>
+
+            </select>
+          </td>
+        </tr>
+      </tbody>
+      {% endfor %}
+    </table>
+  </div>
+
+  <br>
+
+  <div class="container">
+    <div style="text-align: right">
+      <button type="submit" class="btn btn-primary">Next</button>
+
+      <a href="{{ url_for('finish', sentence_id=sen['sent_id']) }}">
+        <button type="button" class="btn btn-success">Finish</button>
+      </a>
+    </div>
+    <br />
+    <br />
+  </div>
+  {% endfor %}
+
+
+
+
+
+  <!-- <input class="btn-dark" type="submit"> -->
+</form>
+<br>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/annotate.js') }}"></script>
+<script src="{{ url_for('static', filename='js/hover.js') }}"></script>
+<script>
+  var selectedOption = $("input:radio[name=sentiment_analysis]:checked").val()
+</script>
+<script>
+  $('document').ready(function () {
+    apply_hover_effect();
+  });
+</script>
+{% endblock %}Is Completed
